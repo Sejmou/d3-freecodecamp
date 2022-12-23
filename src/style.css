@@ -1,0 +1,5 @@
+/* quick fix for getting full-screen SVG to work as expected - without scrollbars */
+body {
+  margin: 0;
+  overflow: hidden;
+}
