@@ -22,6 +22,7 @@ circleMask
 const n = 100;
 
 svg
+  .append('g') // this is important! by grouping we make sure that we select only newly created rects, not all rects in the SVG
   .selectAll('rect')
   .data(range(n))
   .join('rect') // simplified API compared to enter/exit etc. - more details later
@@ -29,6 +30,30 @@ svg
   .attr('width', width)
   .attr('height', 10)
   .attr('mask', 'url(#circle-mask)');
+
+const circleMaskInv = svg.append('mask').attr('id', 'circle-mask-inv');
+circleMaskInv
+  .append('rect')
+  .attr('width', width)
+  .attr('height', height)
+  .attr('fill', 'white');
+
+circleMaskInv
+  .append('circle')
+  .attr('cx', width / 2)
+  .attr('cy', height / 2)
+  .attr('r', '25%')
+  .attr('fill', 'black');
+
+svg
+  .append('g')
+  .selectAll('rect')
+  .data(range(n))
+  .join('rect')
+  .attr('x', i => i * 20)
+  .attr('width', 10)
+  .attr('height', height)
+  .attr('mask', 'url(#circle-mask-inv)');
 
 function range(number: number) {
   return Array.from(Array(number).keys());
