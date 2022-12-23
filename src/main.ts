@@ -1,5 +1,5 @@
 import './style.css';
-import { select } from 'd3';
+import { select, range } from 'd3';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -54,7 +54,3 @@ svg
   .attr('width', 10)
   .attr('height', height)
   .attr('mask', 'url(#circle-mask-inv)');
-
-function range(number: number) {
-  return Array.from(Array(number).keys());
-}
