@@ -21,21 +21,14 @@ circleMask
 
 const n = 100;
 
-const horizMarks = range(n).map(i => ({
-  y: i * 20,
-  width: width,
-  height: 10,
-  mask: 'url(#circle-mask)',
-}));
-
 svg
   .selectAll('rect')
-  .data(horizMarks) // produces d3 data join
-  .join('rect') // simplified API compared to enter/exit etc. - will create one rect for each mark
-  .attr('y', d => d.y) // assign attributes to each rect
-  .attr('width', d => d.width)
-  .attr('height', d => d.height)
-  .attr('mask', d => d.mask);
+  .data(range(n))
+  .join('rect') // simplified API compared to enter/exit etc. - more details later
+  .attr('y', i => i * 20)
+  .attr('width', width)
+  .attr('height', 10)
+  .attr('mask', 'url(#circle-mask)');
 
 function range(number: number) {
   return Array.from(Array(number).keys());
