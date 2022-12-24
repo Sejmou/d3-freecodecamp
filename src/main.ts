@@ -1,5 +1,5 @@
 import './style.css';
-import { select, range, symbolStar, symbol, Selection } from 'd3';
+import { select, range, symbols, symbol, Selection } from 'd3';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -22,11 +22,22 @@ const renderMask = (
     .attr('fill', inverted ? 'black' : 'white');
 
   mask
-    .append('g')
-    .attr('transform', `translate(${width / 2}, ${height / 2})`)
-    .append('path')
-    .attr('d', symbol(symbolStar, 100000))
-    .attr('fill', inverted ? 'white' : 'black');
+    .selectAll('g')
+    .data(symbols.slice(0, 5))
+    .join(enter =>
+      enter
+        .append('g')
+        .attr(
+          'transform',
+          (_, i) =>
+            `translate(${((i % 5) * width) / 4}, ${
+              height / 2 + (i % 2 == 0 ? -1 : 1) * (height / 4)
+            })`
+        )
+        .append('path')
+        .attr('d', d => symbol(d, 50000)())
+        .attr('fill', inverted ? 'white' : 'black')
+    );
 };
 
 svg.call(renderMask, 'mask-1', false);
