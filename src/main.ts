@@ -9,10 +9,9 @@ const svg = select('body')
   .attr('width', width)
   .attr('height', height);
 
-const sortable = [3, 60, 35, 2, 45, 320, 5];
-// Vanilla JS sorting approach:
-// sortable.sort((a, b) => a - b);
-// note: cannot use sort without this sorting function as default sort converts to string and sorts alphabetically
-
-// fancy d3 sorting approach:
-console.log(sortable.sort(ascending));
+const sortable = [
+  { name: 'C', value: 66 },
+  { name: 'A', value: 123 },
+  { name: 'B', value: 2 },
+];
+console.log(sortable.sort((a, b) => ascending(a.value, b.value)));
