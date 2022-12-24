@@ -1,5 +1,5 @@
 import './style.css';
-import { select, range } from 'd3';
+import { select, range, symbolStar, symbol, Selection } from 'd3';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -9,15 +9,33 @@ const svg = select('body')
   .attr('width', width)
   .attr('height', height);
 
-// other SVG elements can refer to "masks" - masks can be of arbitrary shape and can be used to hide or show content
-// in this example, we create a circle mask and will use it to show vertical lines "inside" of it (where it is white) and hide them outside of it (where it is black)
-const circleMask = svg.append('mask').attr('id', 'circle-mask');
-circleMask
-  .append('circle')
-  .attr('cx', width / 2)
-  .attr('cy', height / 2)
-  .attr('r', '25%')
-  .attr('fill', 'white'); // if a mask is filled white, it will show the content, if it is filled black, it will hide the content
+const renderMask = (
+  selection: Selection<SVGSVGElement, unknown, HTMLElement, any>,
+  id: string,
+  inverted: boolean
+) => {
+  const mask = selection.append('mask').attr('id', id);
+  mask
+    .append('rect')
+    .attr('width', width)
+    .attr('height', height)
+    .attr('fill', inverted ? 'black' : 'white');
+
+  mask
+    .append('g')
+    .attr('transform', `translate(${width / 2}, ${height / 2})`)
+    .append('path')
+    .attr('d', symbol(symbolStar, 100000))
+    .attr('fill', inverted ? 'white' : 'black');
+};
+
+svg.call(renderMask, 'mask-1', false);
+svg.call(renderMask, 'mask-2', true);
+
+// above lines are equivalent to:
+// renderMask(svg, 'mask-1', false);
+// renderMask(svg, 'mask-2', true);
+// advantage of using approach above is that we can chain it with other calls
 
 const n = 100;
 
@@ -29,21 +47,7 @@ svg
   .attr('y', i => i * 20)
   .attr('width', width)
   .attr('height', 10)
-  .attr('mask', 'url(#circle-mask)');
-
-const circleMaskInv = svg.append('mask').attr('id', 'circle-mask-inv');
-circleMaskInv
-  .append('rect')
-  .attr('width', width)
-  .attr('height', height)
-  .attr('fill', 'white');
-
-circleMaskInv
-  .append('circle')
-  .attr('cx', width / 2)
-  .attr('cy', height / 2)
-  .attr('r', '25%')
-  .attr('fill', 'black');
+  .attr('mask', 'url(#mask-1)');
 
 svg
   .append('g')
@@ -53,4 +57,4 @@ svg
   .attr('x', i => i * 20)
   .attr('width', 10)
   .attr('height', height)
-  .attr('mask', 'url(#circle-mask-inv)');
+  .attr('mask', 'url(#mask-2)');
