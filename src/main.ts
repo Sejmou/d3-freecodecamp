@@ -11,29 +11,39 @@ const svg = select('body') // selection of all existing DOM elements that match 
 
 let t = 0;
 
+// we want to draw circles with lines between them for all data points
+// issue: circles should always be drawn above lines
+// to solve this, we put circles and lines in separate groups
+// those groups can be thought of as layers
+const lineLayer = svg.append('g');
+const circleLayer = svg.append('g');
+const dataCountText = svg.append('text').attr('x', 25).attr('y', 25);
+
 setInterval(() => {
-  console.log(t);
-  // modified example: number of datapoints changes over time!
-  const data = range(10 + Math.sin(t) * 5).map(i => ({
+  const n = 15;
+  // add and remove datapoints over time, arranged in a pattern that looks like a sine wave
+  const data = range(n + Math.sin(t) * (n + 1)).map(i => ({
     x: i * 60 + 50,
-    y: 250 + 225 * Math.sin(i * 0.5 + t),
+    y: 275 + 225 * Math.sin(i * 0.5 + t),
   }));
-  const circles = svg.selectAll('circle').data(data).join('circle');
-  // join() causes DOM elements associated with disappearing data points to be removed as well
+  // don't understand my code perfectly, but I think min and max length of array over time are 0 and 2 * n + 1
+  dataCountText.text(`Number of data points: ${data.length}`);
+
+  const circles = circleLayer.selectAll('circle').data(data).join('circle');
   circles
     .attr('r', 20)
     .attr('cx', d => d.x)
-    .attr('cy', d => d.y);
+    .attr('cy', d => d.y)
+    .attr('fill', (_, i) => (i % 2 == 0 ? 'orange' : 'lightblue'));
 
-  // to reproduce behavior without use of join() convenience method, we need to use exit().remove():
-  // const circles = svg.selectAll('circle').data(data);
-  // const circlesEnter = circles.enter().append('circle');
-  // circles
-  //   .merge(circlesEnter) // for some reason TS complains here - but it works at runtime :/
-  //   .attr('r', 20)
-  //   .attr('cx', d => d.x)
-  //   .attr('cy', d => d.y);
-  // circles.exit().remove();
+  const dataWithoutFirst = data.slice(1);
+  const lines = lineLayer.selectAll('line').data(dataWithoutFirst).join('line');
+  lines
+    .attr('stroke', 'black')
+    .attr('x1', (_, i) => data[i].x)
+    .attr('y1', (_, i) => data[i].y)
+    .attr('x2', d => d.x)
+    .attr('y2', d => d.y);
 
   t += 0.01;
 }, 1000 / 60); // 60 fps means 1 update every 16.6 ms (1000 ms / 60)
