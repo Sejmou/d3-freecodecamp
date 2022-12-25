@@ -1,5 +1,5 @@
 import './style.css';
-import { select, range } from 'd3';
+import { select, range, line as d3line } from 'd3';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -16,6 +16,11 @@ let t = 0;
 // to solve this, we put circles and lines in separate groups
 // those groups can be thought of as layers
 const lineLayer = svg.append('g');
+const linePath = lineLayer
+  .append('path')
+  .attr('stroke', 'black')
+  .attr('fill', 'none');
+const line = d3line();
 const circleLayer = svg.append('g');
 const dataCountText = svg.append('text').attr('x', 25).attr('y', 25);
 
@@ -36,14 +41,7 @@ setInterval(() => {
     .attr('cy', d => d.y)
     .attr('fill', (_, i) => (i % 2 == 0 ? 'orange' : 'lightblue'));
 
-  const dataWithoutFirst = data.slice(1);
-  const lines = lineLayer.selectAll('line').data(dataWithoutFirst).join('line');
-  lines
-    .attr('stroke', 'black')
-    .attr('x1', (_, i) => data[i].x)
-    .attr('y1', (_, i) => data[i].y)
-    .attr('x2', d => d.x)
-    .attr('y2', d => d.y);
+  linePath.attr('d', line(data.map(d => [d.x, d.y])));
 
   t += 0.01;
 }, 1000 / 60); // 60 fps means 1 update every 16.6 ms (1000 ms / 60)
