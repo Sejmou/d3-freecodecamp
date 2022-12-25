@@ -13,22 +13,19 @@ let t = 0;
 
 setInterval(() => {
   console.log(t);
-  const data = range(15).map(i => ({
+  // modified example: number of datapoints changes over time!
+  const data = range(10 + Math.sin(t) * 5).map(i => ({
     x: i * 60 + 50,
     y: 250 + 225 * Math.sin(i * 0.5 + t),
   }));
-
-  // beforehand, we just set cx and cy on the update selection
-  // therefore, initially (on enter) the circles were all at the same position (0, 0)
-  // solution: use join() -> returns merged enter and update selections
   const circles = svg.selectAll('circle').data(data).join('circle');
-  // add logic that should be applied on both enter and update selections
+  // join() causes DOM elements associated with disappearing data points to be removed as well
   circles
     .attr('r', 20)
     .attr('cx', d => d.x)
     .attr('cy', d => d.y);
 
-  // the above code is equivalent to
+  // to reproduce behavior without use of join() convenience method, we need to use exit().remove():
   // const circles = svg.selectAll('circle').data(data);
   // const circlesEnter = circles.enter().append('circle');
   // circles
@@ -36,6 +33,7 @@ setInterval(() => {
   //   .attr('r', 20)
   //   .attr('cx', d => d.x)
   //   .attr('cy', d => d.y);
+  // circles.exit().remove();
 
   t += 0.01;
 }, 1000 / 60); // 60 fps means 1 update every 16.6 ms (1000 ms / 60)
