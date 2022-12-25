@@ -18,12 +18,24 @@ setInterval(() => {
     y: 250 + 225 * Math.sin(i * 0.5 + t),
   }));
 
-  const circles = svg.selectAll('circle').data(data);
+  // beforehand, we just set cx and cy on the update selection
+  // therefore, initially (on enter) the circles were all at the same position (0, 0)
+  // solution: use join() -> returns merged enter and update selections
+  const circles = svg.selectAll('circle').data(data).join('circle');
+  // add logic that should be applied on both enter and update selections
+  circles
+    .attr('r', 20)
+    .attr('cx', d => d.x)
+    .attr('cy', d => d.y);
 
-  // the enter selection runs only once before DOM elements are added for data points
-  circles.enter().append('circle').attr('r', 20);
-  // use "regular" update selection to update the DOM elements that already exist
-  circles.attr('cx', d => d.x).attr('cy', d => d.y);
+  // the above code is equivalent to
+  // const circles = svg.selectAll('circle').data(data);
+  // const circlesEnter = circles.enter().append('circle');
+  // circles
+  //   .merge(circlesEnter) // for some reason TS complains here - but it works at runtime :/
+  //   .attr('r', 20)
+  //   .attr('cx', d => d.x)
+  //   .attr('cy', d => d.y);
 
-  t += 60 / 1000;
-}, 1000 / 60);
+  t += 0.01;
+}, 1000 / 60); // 60 fps means 1 update every 16.6 ms (1000 ms / 60)
