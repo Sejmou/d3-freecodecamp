@@ -9,13 +9,21 @@ const svg = select('body') // selection of all existing DOM elements that match 
   .attr('width', width)
   .attr('height', height);
 
-const data = range(15);
+let t = 0;
 
-svg
-  .selectAll('circle')
-  .data(data)
-  .enter() // enter selection contains all data elements that don't have a corresponding DOM element for the provided selector (in this case 'circle)
-  .append('circle')
-  .attr('r', 10)
-  .attr('cx', d => d * 25 + 25)
-  .attr('cy', d => 250 + Math.sin(d * 0.5) * 100);
+setInterval(() => {
+  console.log(t);
+  const data = range(15).map(i => ({
+    x: i * 60 + 50,
+    y: 250 + 225 * Math.sin(i * 0.5 + t),
+  }));
+
+  const circles = svg.selectAll('circle').data(data);
+
+  // the enter selection runs only once before DOM elements are added for data points
+  circles.enter().append('circle').attr('r', 20);
+  // use "regular" update selection to update the DOM elements that already exist
+  circles.attr('cx', d => d.x).attr('cy', d => d.y);
+
+  t += 60 / 1000;
+}, 1000 / 60);
